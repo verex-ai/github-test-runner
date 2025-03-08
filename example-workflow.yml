@@ -14,12 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Run API Tests
-        uses: yourusername/api-test-runner@v1
+      - name: Run QA Tests
+        uses: verex-ai/github-test-runner@v1
         with:
           api_key: ${{ secrets.API_KEY }}
           test_suite: 'testsuite_123456'
-          api_base_url: 'https://your-api-domain.com/api'
+          api_base_url: 'https://verex.ai/api'
           poll_interval_seconds: '15'
           debug: 'true'
         id: test_results
@@ -33,3 +33,6 @@ jobs:
           echo "Passed: ${{ steps.test_results.outputs.passed_tests }}"
           echo "Failed: ${{ steps.test_results.outputs.failed_tests }}"
           echo "Duration: ${{ steps.test_results.outputs.test_duration }} seconds"
+          echo "Test Suite Link: ${{ steps.test_results.outputs.test_suite_link }}"
+          echo "Test Suite Run ID: ${{ steps.test_results.outputs.test_suite_run_id }}"
+          echo "Test Suite Run Status: ${{ steps.test_results.outputs.test_suite_run_status }}"
