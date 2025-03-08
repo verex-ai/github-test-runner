@@ -119,9 +119,9 @@ async function pollUntilComplete(runId) {
       `Poll attempt ${attempts}/${MAX_POLL_ATTEMPTS}: Status - ${status}`
     );
 
-    if (status === "COMPLETED") {
+    if (status === "PASSED") {
       if (DEBUG) {
-        console.log(`Tests completed: ${JSON.stringify(status)}`);
+        console.log(`Tests completed: ${status}`);
       }
       return status;
     } else if (status === "FAILED" || status === "ERROR") {
@@ -228,7 +228,7 @@ async function main() {
     const results = await getTestSuiteRun(runId, true);
     processResults(results.testSuiteRun, results.testRuns);
 
-    if (testSuiteRunStatus === "COMPLETED") {
+    if (testSuiteRunStatus === "PASSED") {
       setOutput("test_status", "COMPLETED");
       console.log("All tests passed successfully");
     } else {
