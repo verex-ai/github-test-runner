@@ -71,11 +71,13 @@ async function queueTests() {
 }
 
 /**
- * Check the status of the test run
+ * Get the test suite run details
  */
-async function checkTestStatus(runId) {
+async function getTestSuiteRun(runId, includeTestRuns = false) {
   try {
-    const apiUrl = `${API_BASE_URL}/apiRunners/testSuiteRun/${runId}`;
+    const apiUrl = `${API_BASE_URL}/apiRunners/testSuiteRun/${runId}?includeTestRuns=${
+      includeTestRuns ? "true" : "false"
+    }`;
     if (DEBUG) {
       console.log(`Checking test status using API: ${apiUrl}`);
     }
@@ -111,17 +113,18 @@ async function pollUntilComplete(runId) {
   while (attempts < MAX_POLL_ATTEMPTS) {
     attempts++;
 
-    const status = await checkTestStatus(runId);
+    const testSuiteRunResponse = await getTestSuiteRun(runId, true);
+    const status = testSuiteRunResponse.testSuiteRun.status;
     console.log(
-      `Poll attempt ${attempts}/${MAX_POLL_ATTEMPTS}: Status - ${status.status}`
+      `Poll attempt ${attempts}/${MAX_POLL_ATTEMPTS}: Status - ${status}`
     );
 
-    if (status.status === "COMPLETED") {
+    if (status === "COMPLETED") {
       if (DEBUG) {
         console.log(`Tests completed: ${JSON.stringify(status)}`);
       }
       return status;
-    } else if (status.status === "FAILED" || status.status === "ERROR") {
+    } else if (status === "FAILED" || status === "ERROR") {
       console.error("Tests failed or encountered an error:", status);
       setOutput("test_status", "FAILED");
       process.exit(1);
@@ -139,12 +142,23 @@ async function pollUntilComplete(runId) {
 /**
  * Process the test results
  */
-function processResults(results) {
+function processResults(testSuiteRun, testRuns) {
+  const totalTests = testRuns.length;
+  const passed = testRuns.filter(
+    (testRun) => testRun.status === "PASSED"
+  ).length;
+  const failed = testRuns.filter(
+    (testRun) => testRun.status === "FAILED"
+  ).length;
+  const skipped = testRuns.filter(
+    (testRun) => testRun.status === "SKIPPED"
+  ).length;
+
   console.log("\n============ TEST RESULTS ============");
-  console.log(`Total Tests: ${results.totalTests}`);
-  console.log(`Passed: ${results.passed}`);
-  console.log(`Failed: ${results.failed}`);
-  console.log(`Skipped: ${results.skipped || 0}`);
+  console.log(`Total Tests: ${totalTests}`);
+  console.log(`Passed: ${passed}`);
+  console.log(`Failed: ${failed}`);
+  console.log(`Skipped: ${skipped}`);
   console.log("======================================\n");
 
   // Calculate test duration
@@ -153,15 +167,15 @@ function processResults(results) {
   const duration = Math.floor((endTime - startTime) / 1000);
 
   // Set GitHub workflow output variables
-  setOutput("total_tests", results.totalTests.toString());
-  setOutput("passed_tests", results.passed.toString());
-  setOutput("failed_tests", results.failed.toString());
+  setOutput("total_tests", totalTests.toString());
+  setOutput("passed_tests", passed.toString());
+  setOutput("failed_tests", failed.toString());
   setOutput("test_duration", duration.toString());
-  setOutput("test_status", "COMPLETED");
+  setOutput("test_status", testSuiteRun.status);
 
   // Exit with error if any tests failed
-  if (results.failed > 0) {
-    console.error(`${results.failed} test(s) failed`);
+  if (failed > 0) {
+    console.error(`${failed} test(s) failed`);
     process.exit(1);
   }
 }
@@ -211,10 +225,15 @@ async function main() {
     }
 
     // Step 2 & 3: Poll until completion or timeout
-    const results = await pollUntilComplete(runId);
+    const testSuiteRunStatus = await pollUntilComplete(runId);
 
-    // Step 4: Process results
-    processResults(results.results);
+    let results = null;
+    if (testSuiteRunStatus === "COMPLETED") {
+      // Step 4: Process results
+      results = await getTestSuiteRun(runId, true);
+    }
+
+    processResults(results.testSuiteRun, results.testRuns);
 
     console.log("All tests passed successfully");
   } catch (error) {
