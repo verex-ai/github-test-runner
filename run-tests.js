@@ -113,7 +113,7 @@ async function pollUntilComplete(runId) {
   while (attempts < MAX_POLL_ATTEMPTS) {
     attempts++;
 
-    const testSuiteRunResponse = await getTestSuiteRun(runId, true);
+    const testSuiteRunResponse = await getTestSuiteRun(runId, false);
     const status = testSuiteRunResponse.testSuiteRun.status;
     console.log(
       `Poll attempt ${attempts}/${MAX_POLL_ATTEMPTS}: Status - ${status}`
@@ -126,8 +126,7 @@ async function pollUntilComplete(runId) {
       return status;
     } else if (status === "FAILED" || status === "ERROR") {
       console.error("Tests failed or encountered an error:", status);
-      setOutput("test_status", "FAILED");
-      process.exit(1);
+      return status;
     }
 
     // Continue polling if still in progress
@@ -135,8 +134,7 @@ async function pollUntilComplete(runId) {
   }
 
   console.error(`Timed out after ${attempts} attempts`);
-  setOutput("test_status", "TIMEOUT");
-  process.exit(1);
+  return "TIMEOUT";
 }
 
 /**
@@ -227,15 +225,20 @@ async function main() {
     // Step 2 & 3: Poll until completion or timeout
     const testSuiteRunStatus = await pollUntilComplete(runId);
 
-    let results = null;
-    if (testSuiteRunStatus === "COMPLETED") {
-      // Step 4: Process results
-      results = await getTestSuiteRun(runId, true);
-    }
-
+    const results = await getTestSuiteRun(runId, true);
     processResults(results.testSuiteRun, results.testRuns);
 
-    console.log("All tests passed successfully");
+    if (testSuiteRunStatus === "COMPLETED") {
+      setOutput("test_status", "COMPLETED");
+      console.log("All tests passed successfully");
+    } else {
+      console.error(
+        "Tests failed or encountered an error:",
+        testSuiteRunStatus
+      );
+      setOutput("test_status", testSuiteRunStatus || "FAILED");
+      process.exit(1);
+    }
   } catch (error) {
     console.error("Error executing tests:", error);
     setOutput("test_status", "ERROR");
