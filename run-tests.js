@@ -5,7 +5,8 @@ const fs = require("fs");
 const API_KEY = (process.env.API_KEY || "").trim();
 const TEST_SUITE_ID = (process.env.TEST_SUITE_ID || "").trim();
 const TEST_BASE_URL = (process.env.TEST_BASE_URL || "").trim();
-const API_BASE_URL = (process.env.API_BASE_URL || "").trim();
+const API_BASE_URL =
+  (process.env.API_BASE_URL || "").trim() || "https://verex.ai/api";
 const MAX_POLL_ATTEMPTS = parseInt(
   (process.env.MAX_POLL_ATTEMPTS || "60").trim()
 );
@@ -74,7 +75,7 @@ async function queueTests() {
  */
 async function checkTestStatus(runId) {
   try {
-    const apiUrl = `${API_BASE_URL}/runners/testSuiteRun/${runId}`;
+    const apiUrl = `${API_BASE_URL}/apiRunners/testSuiteRun/${runId}`;
     if (DEBUG) {
       console.log(`Checking test status using API: ${apiUrl}`);
     }
