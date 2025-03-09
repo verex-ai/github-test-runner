@@ -17,8 +17,8 @@ jobs:
       - name: Run QA Tests
         uses: verex-ai/github-test-runner@v1
         with:
-          api_key: ${{ secrets.API_KEY }}
-          test_suite: 'testsuite_123456'
+          api_key: ${{ secrets.VEREX_API_KEY }}
+          test_suite: 'suite_abc123456'
           api_base_url: 'https://verex.ai/api'
           poll_interval_seconds: '15'
           debug: 'true'

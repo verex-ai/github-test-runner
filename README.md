@@ -21,9 +21,18 @@ Add the following step to your GitHub Actions workflow file:
 - name: Run QA Tests
   uses: verex-ai/github-test-runner@v1
   with:
-    api_key: ${{ secrets.API_KEY }}
-    test_suite: 'testsuite_123456'
+    api_key: ${{ secrets.VEREX_API_KEY }}
+    test_suite: 'suite_abc123456'
 ```
+
+## API Key
+
+The API key must be stored in a GitHub secret. You can create a new secret in your repository settings or use the `VEREX_API_KEY` environment variable.
+
+## Obtaining the API Key
+
+The API key can be found in the [Verex Dashboard](https://verex.ai/app).
+Go to Settings > API Keys and create a new key.
 
 ## Complete Example
 
