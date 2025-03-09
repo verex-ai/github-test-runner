@@ -1,7 +1,6 @@
 # Verex AI Test Runner
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/verex-ai/github-test-runner)](https://github.com/verex-ai/github-test-runner/releases)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/verex-ai/github-test-runner/ci.yml?branch=main)](https://github.com/verex-ai/github-test-runner/actions)
 [![License](https://img.shields.io/github/license/verex-ai/github-test-runner)](https://github.com/verex-ai/github-test-runner/blob/main/LICENSE)
 
 Run Verex AI test suites directly in your GitHub workflow. This action allows you to execute your test suites, monitor their progress, and report results all within your CI/CD pipeline.
