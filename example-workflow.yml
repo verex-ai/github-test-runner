@@ -1,0 +1,38 @@
+name: Example Test Workflow
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Run QA Tests
+        uses: verex-ai/github-test-runner@v1
+        with:
+          api_key: ${{ secrets.API_KEY }}
+          test_suite: 'testsuite_123456'
+          api_base_url: 'https://verex.ai/api'
+          poll_interval_seconds: '15'
+          debug: 'true'
+        id: test_results
+      
+      - name: Report Test Results
+        if: always()
+        run: |
+          echo "Test Results Summary:"
+          echo "----------------------"
+          echo "Total: ${{ steps.test_results.outputs.total_tests }}"
+          echo "Passed: ${{ steps.test_results.outputs.passed_tests }}"
+          echo "Failed: ${{ steps.test_results.outputs.failed_tests }}"
+          echo "Duration: ${{ steps.test_results.outputs.test_duration }} seconds"
+          echo "Test Suite Link: ${{ steps.test_results.outputs.test_suite_link }}"
+          echo "Test Suite Run ID: ${{ steps.test_results.outputs.test_suite_run_id }}"
+          echo "Test Suite Run Status: ${{ steps.test_results.outputs.test_suite_run_status }}"

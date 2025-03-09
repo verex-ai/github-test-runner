@@ -1,0 +1,79 @@
+name: 'Verex QA Test Runner'
+description: 'Run and monitor tests with customizable polling and timeout'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+
+inputs:
+  api_key:
+    description: 'API key for authentication'
+    required: true
+  test_suite:
+    description: 'Test suite ID to execute'
+    required: true
+  test_base_url:
+    description: 'Base URL for the tests (e.g. https://staging.yourdomain.com)'
+    required: false
+  api_base_url:
+    description: 'Base URL for the API'
+    required: false
+    default: 'https://verex.ai/api'
+  max_poll_attempts:
+    description: 'Maximum number of polling attempts'
+    required: false
+    default: '60'
+  poll_interval_seconds:
+    description: 'Seconds to wait between polling attempts'
+    required: false
+    default: '10'
+  timeout_minutes:
+    description: 'Overall timeout for the test run in minutes'
+    required: false
+    default: '30'
+  debug:
+    description: 'Enable debug mode'
+    required: false
+    default: 'false'
+
+outputs:
+  test_suite_run_id:
+    description: 'ID of the test suite run'
+  test_suite_run_status:
+    description: 'Status of the test suite run'
+  test_suite_link:
+    description: 'Link to the test suite'
+  test_suite_run_link:
+    description: 'Link to the test suite run'
+  total_tests:
+    description: 'Total number of tests executed'
+  passed_tests:
+    description: 'Number of tests that passed'
+  failed_tests:
+    description: 'Number of tests that failed'
+  test_duration:
+    description: 'Total duration of the test run in seconds'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm install
+      shell: bash
+    
+    - name: Run Test Suite
+      id: run_tests
+      run: node ${{ github.action_path }}/run-tests.js
+      shell: bash
+      env:
+        API_KEY: ${{ inputs.api_key }}
+        TEST_SUITE_ID: ${{ inputs.test_suite }}
+        API_BASE_URL: ${{ inputs.api_base_url }}
+        MAX_POLL_ATTEMPTS: ${{ inputs.max_poll_attempts }}
+        POLL_INTERVAL_SECONDS: ${{ inputs.poll_interval_seconds }}
+        TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
+        DEBUG: ${{ inputs.debug }}
