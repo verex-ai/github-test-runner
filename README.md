@@ -43,7 +43,7 @@ See [example-workflow.yml](./example-workflow.yml) for a complete example that y
 - name: Run QA Tests
   uses: verex-ai/github-test-runner@v1
   with:
-    api_key: ${{ secrets.API_KEY }}
+    api_key: ${{ secrets.VEREX_API_KEY }}
     test_suite: 'testsuite_123456'
     debug: 'true'
   id: test_results
