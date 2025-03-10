@@ -55,29 +55,44 @@ See [example-workflow.yml](./example-workflow.yml) for a complete example that y
     echo "Failed: ${{ steps.test_results.outputs.failed_tests }}"
 ```
 
+## Passing a dynamic Base URL to run the tests against
+
+You might want to run the tests against the current branch of your repository.
+
+If you need to pass a dynamic base URL, you can use the `test_base_url` input.
+
+```yaml
+test_base_url: ${{ steps.deploy.outputs.deployment_url }}
+```
+
+NOTE: 
+- In the example above, the `steps.deploy.outputs.deployment_url` is a placeholder for the actual deployment URL which will vary depending on the deployment environment.
+- The `test_base_url` input is used to set the base URL for the tests. It is used to replace the `{{base_url}}` placeholder in the test suite.
 ## Inputs
 
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
-| `api_key` | Verex AI API key | Yes | |
-| `test_suite` | ID of the test suite to run | Yes | |
-| `api_base_url` | Base URL for the Verex API | No | `https://verex.ai/api` |
-| `poll_interval_seconds` | Time in seconds between status checks | No | `10` |
-| `timeout_seconds` | Maximum time to wait for test completion | No | `3600` |
-| `debug` | Enable debug logging | No | `false` |
-| `fail_on_test_failure` | Whether to fail the GitHub Action if tests fail | No | `true` |
+| `api_key` | API key for authentication | Yes | |
+| `test_suite` | Test suite ID to execute | Yes | |
+| `test_base_url` | Base URL for the tests (e.g. https://staging.yourdomain.com) | No | |
+| `api_base_url` | Base URL for the API | No | `https://verex.ai/api` |
+| `max_poll_attempts` | Maximum number of polling attempts | No | `60` |
+| `poll_interval_seconds` | Seconds to wait between polling attempts | No | `10` |
+| `timeout_minutes` | Overall timeout for the test run in minutes | No | `30` |
+| `debug` | Enable debug mode | No | `false` |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| `test_suite_run_id` | ID of the test suite run |
+| `test_suite_run_status` | Status of the test suite run |
+| `test_suite_link` | Link to the test suite |
+| `test_suite_run_link` | Link to the test suite run |
 | `total_tests` | Total number of tests executed |
 | `passed_tests` | Number of tests that passed |
 | `failed_tests` | Number of tests that failed |
-| `test_duration` | Duration of the test run in seconds |
-| `test_suite_link` | Link to the test suite in Verex AI dashboard |
-| `test_suite_run_id` | ID of the test suite run |
-| `test_suite_run_status` | Final status of the test suite run |
+| `test_duration` | Total duration of the test run in seconds |
 
 ## Requirements
 
