@@ -78,7 +78,6 @@ NOTE:
 | `api_base_url` | Base URL for the API | No | `https://verex.ai/api` |
 | `max_poll_attempts` | Maximum number of polling attempts | No | `60` |
 | `poll_interval_seconds` | Seconds to wait between polling attempts | No | `10` |
-| `timeout_minutes` | Overall timeout for the test run in minutes | No | `30` |
 | `debug` | Enable debug mode | No | `false` |
 
 ## Outputs
