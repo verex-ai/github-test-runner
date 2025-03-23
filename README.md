@@ -109,9 +109,9 @@ NOTE:
 If you encounter issues, enable the `debug` option to see more detailed logs. Common issues include:
 
 - Invalid API key
-- Non-existent test suite ID
+- Non-existent Test Suite ID
 - Network connectivity problems
-- Timeouts (increase `timeout_seconds` for longer-running tests)
+- Timeouts (tweak `poll_interval_seconds` and/or `max_poll_attempts` for longer-running tests)
 
 ## Contributing
 
