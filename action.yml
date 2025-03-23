@@ -26,10 +26,6 @@ inputs:
     description: 'Seconds to wait between polling attempts'
     required: false
     default: '10'
-  timeout_minutes:
-    description: 'Overall timeout for the test run in minutes'
-    required: false
-    default: '30'
   debug:
     description: 'Enable debug mode'
     required: false
@@ -59,21 +55,21 @@ runs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '20'
     
-    - name: Install dependencies
-      run: npm install
+    - name: Install Verex Runner
+      run: npm install -g @verex/runner@1
       shell: bash
     
     - name: Run Test Suite
       id: run_tests
-      run: node ${{ github.action_path }}/run-tests.js
+      run: verex-runner
       shell: bash
       env:
         API_KEY: ${{ inputs.api_key }}
         TEST_SUITE_ID: ${{ inputs.test_suite }}
+        TEST_BASE_URL: ${{ inputs.test_base_url }}
         API_BASE_URL: ${{ inputs.api_base_url }}
         MAX_POLL_ATTEMPTS: ${{ inputs.max_poll_attempts }}
         POLL_INTERVAL_SECONDS: ${{ inputs.poll_interval_seconds }}
-        TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
         DEBUG: ${{ inputs.debug }}
