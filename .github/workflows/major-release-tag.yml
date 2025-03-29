@@ -7,12 +7,12 @@ on:
 jobs:
   movetag:
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GH_PAT }}
 
     - name: Get major version num and update tag
       run: |
@@ -26,7 +26,8 @@ jobs:
         else
           MAJOR_TAG="${MAJOR}"
         fi
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git config --global user.name '${{ vars.GH_USERNAME }}'
+        git config --global user.email '${{ vars.GH_EMAIL }}'
         git tag -fa "${MAJOR_TAG}" -m "Update major version tag to ${VERSION}"
         git push origin "${MAJOR_TAG}" --force 
+        echo "Updated major version tag to ${MAJOR_TAG}"
