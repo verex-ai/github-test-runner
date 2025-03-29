@@ -4,52 +4,35 @@ on:
   release:
     types: [created]
 
+# Explicitly set permissions
+permissions:
+  contents: write
+
 jobs:
   movetag:
     runs-on: ubuntu-latest
-    environment: Production
 
     steps:
-    - name: Debug environment
-      run: |
-        echo "GITHUB_REF: $GITHUB_REF"
-        echo "All environment variables:"
-        env
-
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GH_PAT }}
+        # Use the default GITHUB_TOKEN
+        token: ${{ github.token }}
 
-    - name: Update remote URL before any git operations
-      run: |
-        git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/verex-ai/github-test-runner.git
-        
     - name: Get major version num and update tag
       run: |
-        # Get version from GITHUB_REF or release tag
         VERSION=${GITHUB_REF#refs/tags/}
-        echo "VERSION from GITHUB_REF: $VERSION"
-        
-        # Alternatively, get directly from github.ref_name
-        VERSION="${{ github.ref_name }}"
-        echo "VERSION from github.ref_name: $VERSION"
-        
-        # Remove 'v' prefix if it exists
         VERSION_NO_V=${VERSION#v}
         MAJOR=${VERSION_NO_V%%.*}
-        # Add 'v' prefix back if original version had it
         if [[ $VERSION == v* ]]; then
           MAJOR_TAG="v${MAJOR}"
         else
           MAJOR_TAG="${MAJOR}"
         fi
-        echo "MAJOR_TAG: $MAJOR_TAG"
         
-        git config --global user.name '${{ vars.GH_USERNAME }}'
-        git config --global user.email '${{ vars.GH_EMAIL }}'
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
-        # Create and push the tag
         git tag -fa "${MAJOR_TAG}" -m "Update major version tag to ${VERSION}"
-        git push origin "${MAJOR_TAG}" --force 
+        git push origin "${MAJOR_TAG}" --force
         echo "Updated major version tag to ${MAJOR_TAG}"
