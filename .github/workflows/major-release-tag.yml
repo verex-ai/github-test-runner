@@ -14,8 +14,16 @@ jobs:
     - name: Get major version num and update tag
       run: |
         VERSION=${GITHUB_REF#refs/tags/}
-        MAJOR=${VERSION%%.*}
+        # Remove 'v' prefix if it exists
+        VERSION_NO_V=${VERSION#v}
+        MAJOR=${VERSION_NO_V%%.*}
+        # Add 'v' prefix back if original version had it
+        if [[ $VERSION == v* ]]; then
+          MAJOR_TAG="v${MAJOR}"
+        else
+          MAJOR_TAG="${MAJOR}"
+        fi
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git tag -fa "${MAJOR}" -m "Update major version tag to ${VERSION}"
-        git push origin "${MAJOR}" --force 
+        git tag -fa "${MAJOR_TAG}" -m "Update major version tag to ${VERSION}"
+        git push origin "${MAJOR_TAG}" --force 
